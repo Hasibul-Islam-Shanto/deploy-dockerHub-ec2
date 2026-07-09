@@ -1,0 +1,47 @@
+{% if students %}
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Today's Status</th>
+            <th>Registered</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.name }}</td>
+            <td>
+                {% if student.today_status == "Present" %}
+                    <span class="badge badge-present">Present</span>
+                {% elif student.today_status == "Absent" %}
+                    <span class="badge badge-absent">Absent</span>
+                {% else %}
+                    <span class="badge badge-none">Not marked</span>
+                {% endif %}
+            </td>
+            <td>{{ student.created_at.strftime('%Y-%m-%d') if student.created_at else '—' }}</td>
+            <td>
+                <div class="actions">
+                    {% if student.today_status != "Present" %}
+                    <button class="btn btn-primary btn-sm" onclick="markAttendance({{ student.id }}, 'Present')">Mark Present</button>
+                    {% endif %}
+                    {% if student.today_status != "Absent" %}
+                    <button class="btn btn-secondary btn-sm" onclick="markAttendance({{ student.id }}, 'Absent')">Mark Absent</button>
+                    {% endif %}
+                    <button class="btn btn-outline btn-sm edit-btn"
+                            data-id="{{ student.id }}"
+                            data-name="{{ student.name }}">Edit</button>
+                    <button class="btn btn-danger btn-sm delete-btn"
+                            data-id="{{ student.id }}"
+                            data-name="{{ student.name }}">Delete</button>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="empty-state">No students found. Add one above to get started.</div>
+{% endif %}

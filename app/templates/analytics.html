@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% set active_page = "analytics" %}
+
+{% block title %}Analytics — Attendance Tracker{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Analytics</h1>
+    <p>View attendance trends over a date range</p>
+</div>
+
+<div class="card">
+    <h2>Filter</h2>
+    <div class="form-row">
+        <input type="date" id="startDate">
+        <input type="date" id="endDate">
+        <select id="studentFilter">
+            <option value="">All Students</option>
+            {% for student in students %}
+            <option value="{{ student.name }}">{{ student.name }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-primary" onclick="fetchAnalytics()">Show Report</button>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="attendanceChart"></canvas>
+    </div>
+</div>
+
+<a href="/" class="btn btn-outline">← Back to Dashboard</a>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let chartInstance = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const today = new Date().toISOString().split("T")[0];
+        const monthAgo = new Date();
+        monthAgo.setDate(monthAgo.getDate() - 30);
+        document.getElementById("startDate").value = monthAgo.toISOString().split("T")[0];
+        document.getElementById("endDate").value = today;
+        fetchAnalytics();
+    });
+
+    function fetchAnalytics() {
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        const studentName = document.getElementById("studentFilter").value;
+
+        if (!startDate || !endDate) {
+            showToast("Please select start and end dates", "error");
+            return;
+        }
+
+        let url = `/attendance_stats?start_date=${startDate}&end_date=${endDate}`;
+        if (studentName) url += `&student_name=${encodeURIComponent(studentName)}`;
+
+        fetch(url)
+            .then(r => r.json())
+            .then(data => updateChart(data))
+            .catch(() => showToast("Failed to load analytics", "error"));
+    }
+
+    function updateChart(data) {
+        const ctx = document.getElementById("attendanceChart").getContext("2d");
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: ["Present", "Absent"],
+                datasets: [{
+                    data: [data.Present, data.Absent],
+                    backgroundColor: ["#22c55e", "#ef4444"],
+                    borderColor: ["#16a34a", "#dc2626"],
+                    borderWidth: 2,
+                }],
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: { color: "#111827", font: { size: 14 } },
+                    },
+                },
+            },
+        });
+    }
+</script>
+{% endblock %}

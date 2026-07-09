@@ -1,0 +1,39 @@
+{% if records %}
+<table>
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in records %}
+        <tr>
+            <td>{{ record.name }}</td>
+            <td>{{ record.date }}</td>
+            <td>
+                {% if record.status == "Present" %}
+                    <span class="badge badge-present">Present</span>
+                {% else %}
+                    <span class="badge badge-absent">Absent</span>
+                {% endif %}
+            </td>
+            <td>
+                <div class="actions">
+                    {% if record.status == "Present" %}
+                    <button class="btn btn-secondary btn-sm" onclick="markAttendance({{ record.student_id }}, 'Absent')">Mark Absent</button>
+                    {% else %}
+                    <button class="btn btn-primary btn-sm" onclick="markAttendance({{ record.student_id }}, 'Present')">Mark Present</button>
+                    {% endif %}
+                    <button class="btn btn-danger btn-sm" onclick="deleteAttendanceRecord({{ record.attendance_id }})">Delete</button>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="empty-state">No attendance records yet.</div>
+{% endif %}

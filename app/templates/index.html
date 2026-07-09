@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% set active_page = "home" %}
+
+{% block title %}Dashboard — Attendance Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Manage students and track daily attendance</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="label">Total Students</div>
+        <div class="value">{{ stats.total_students }}</div>
+    </div>
+    <div class="stat-card present">
+        <div class="label">Present Today</div>
+        <div class="value">{{ stats.present_today }}</div>
+    </div>
+    <div class="stat-card absent">
+        <div class="label">Absent Today</div>
+        <div class="value">{{ stats.absent_today }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Add Student</h2>
+    <div class="form-row">
+        <input type="text" id="studentName" placeholder="Enter student name" onkeydown="if(event.key==='Enter') registerStudent()">
+        <button class="btn btn-primary" onclick="registerStudent()">Register &amp; Mark Present</button>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Students</h2>
+    <div class="form-row filter-row">
+        <input type="text" id="studentSearch" placeholder="Search students..." oninput="refreshStudents()">
+    </div>
+    <div id="studentsTable" class="table-wrap">
+        <div class="empty-state">Loading students...</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Attendance Records</h2>
+    <div class="form-row filter-row">
+        <input type="text" id="attendanceSearch" placeholder="Search by name..." oninput="refreshAttendance()">
+        <input type="date" id="attendanceDate" onchange="refreshAttendance()">
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('attendanceDate').value=''; refreshAttendance()">Clear Date</button>
+    </div>
+    <div id="attendanceTable" class="table-wrap">
+        <div class="empty-state">Loading records...</div>
+    </div>
+</div>
+
+<div id="editModal" class="modal-overlay">
+    <div class="modal">
+        <h3>Edit Student</h3>
+        <input type="hidden" id="editStudentId">
+        <input type="text" id="editStudentName" placeholder="Student name" style="width:100%">
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveStudentEdit()">Save</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
